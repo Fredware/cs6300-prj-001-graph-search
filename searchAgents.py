@@ -280,7 +280,7 @@ class CornersProblem(search.SearchProblem):
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
-        self.corners = ((1,1), (1,top), (right, 1), (right, top))
+        self.corners = ((1, 1), (1, top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
@@ -295,6 +295,22 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        start_state = {
+            "pos": self.startingPosition,
+            "left_bottom": False,
+            "left_top": False,
+            "right_bottom": False,
+            "right_top": False
+        }
+        if start_state["pos"] == self.corners[0]:
+            start_state["left_bottom"] = True
+        elif start_state["pos"] == self.corners[1]:
+            start_state["left_top"] = True
+        elif start_state["pos"] == self.corners[2]:
+            start_state["right_bottom"] = True
+        elif start_state["pos"] == self.corners[3]:
+            start_state["right_top"] = True
+        return tuple(start_state.values())
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +318,10 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        keys_tuple = ("pos", "left_bottom", "left_top", "right_bottom", "right_top")
+        state_dict = dict(zip(keys_tuple, state))
+        is_goal = state_dict["left_bottom"] and state_dict["left_top"] and state_dict["right_bottom"] and state_dict["right_top"]
+        return is_goal
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -314,19 +334,33 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
+        keys_tuple = ("pos", "left_bottom", "left_top", "right_bottom", "right_top")
+        state_dict = dict(zip(keys_tuple, state))
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-
+            currentPosition = state_dict["pos"]
+            x,y = currentPosition
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
             "*** YOUR CODE HERE ***"
+            if not hitsWall:
+                next_state = state_dict.copy()
+                next_state["pos"] = (nextx, nexty)
+                if next_state["pos"] == self.corners[0]:
+                    next_state["left_bottom"] = True
+                elif next_state["pos"] == self.corners[1]:
+                    next_state["left_top"] = True
+                elif next_state["pos"] == self.corners[2]:
+                    next_state["right_bottom"] = True
+                elif next_state["pos"] == self.corners[3]:
+                    next_state["right_top"] = True
+                successors.append((tuple(next_state.values()), action, 1))
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
