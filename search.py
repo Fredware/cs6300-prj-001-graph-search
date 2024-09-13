@@ -171,7 +171,7 @@ def uniformCostSearch(problem):
         explored_set.add(node["state"])
         successors = problem.getSuccessors(node["state"])
         for child in successors:
-            child_node = {"state": child[0], "parent": node, "action": child[1], "cost": child[2]}
+            child_node = {"state": child[0], "parent": node, "action": child[1], "cost": child[2] + node["cost"]}
             if not (child_node["state"] in explored_set or child_node["state"] in frontier_set):
                 frontier.push(child_node, child_node["cost"])
                 frontier_set.add(child_node["state"])
