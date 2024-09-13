@@ -87,6 +87,32 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    # Initialize the explored set to be empty
+    explored_set = set()
+    # Initialize the frontier as a Stack
+    frontier = util.Stack()
+    # Add initial state to frontier
+    start_node = {"state": problem.getStartState(), "parent": None, "action": None}
+    frontier.push(start_node)
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        if problem.isGoalState(node["state"]):
+            action_list = []
+            while node["parent"] is not None:
+                action_list.append(node["action"])
+                node = node["parent"]
+            action_list.reverse()
+            return action_list
+        explored_set.add(node["state"])
+        successors = problem.getSuccessors(node["state"])
+        for child in successors:
+            child_node = {"state": child[0], "parent": node, "action": child[1]}
+            if child_node["state"] not in explored_set:
+                frontier.push(child_node)
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
