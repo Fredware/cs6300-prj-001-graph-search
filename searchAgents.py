@@ -390,11 +390,35 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
+    corners = problem.corners  # These are the corner coordinates
+    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    keys_tuple = ("pos", "left_bottom", "left_top", "right_bottom", "right_top")
+    state_dict = dict(zip(keys_tuple, state))
+    current_pos = state_dict["pos"]
+    penalized_distances = []
+    wall_x_penalty = 0
+    wall_y_penalty = 0
+    for i, corner in enumerate(corners):
+        corner_label = keys_tuple[i + 1]
+        if not state_dict[corner_label]:
+            l1_distance_x = abs(corner[0] - current_pos[0])
+            l1_distance_y = abs(corner[1] - current_pos[1])
+            l1_distance = l1_distance_x + l1_distance_y
+            for j in range(l1_distance_x):
+                if corner_label == "left_bottom" or corner_label == "left_top":
+                    wall_x_penalty += walls[current_pos[0]-j-1][current_pos[1]]
+                if corner_label == "right_bottom" or corner_label == "right_top":
+                    wall_x_penalty += walls[current_pos[0]+j+1][current_pos[1]]
+            for j in range(l1_distance_y):
+                if corner_label == "left_bottom" or corner_label == "right_bottom":
+                    wall_y_penalty += walls[current_pos[0]][current_pos[1]-j-1]
+                if corner_label == "left_top" or corner_label == "right_top":
+                    wall_y_penalty += walls[current_pos[0]][current_pos[1]+j+1]
+            penalized_distances.append(l1_distance + wall_x_penalty + wall_y_penalty)
+
+    return min(penalized_distances) if penalized_distances else 0
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
