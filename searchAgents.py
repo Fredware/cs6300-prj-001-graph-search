@@ -397,25 +397,14 @@ def cornersHeuristic(state, problem):
     state_dict = dict(zip(keys_tuple, state))
     current_pos = state_dict["pos"]
     penalized_distances = []
-    wall_x_penalty = 0
-    wall_y_penalty = 0
     for i, corner in enumerate(corners):
         corner_label = keys_tuple[i + 1]
         if not state_dict[corner_label]:
             l1_distance_x = abs(corner[0] - current_pos[0])
             l1_distance_y = abs(corner[1] - current_pos[1])
             l1_distance = l1_distance_x + l1_distance_y
-            for j in range(l1_distance_x):
-                if corner_label == "left_bottom" or corner_label == "left_top":
-                    wall_x_penalty += walls[current_pos[0]-j-1][current_pos[1]]
-                if corner_label == "right_bottom" or corner_label == "right_top":
-                    wall_x_penalty += walls[current_pos[0]+j+1][current_pos[1]]
-            for j in range(l1_distance_y):
-                if corner_label == "left_bottom" or corner_label == "right_bottom":
-                    wall_y_penalty += walls[current_pos[0]][current_pos[1]-j-1]
-                if corner_label == "left_top" or corner_label == "right_top":
-                    wall_y_penalty += walls[current_pos[0]][current_pos[1]+j+1]
-            penalized_distances.append(l1_distance + wall_x_penalty + wall_y_penalty)
+            wall_penalty = 0
+            penalized_distances.append(l1_distance + wall_penalty)
 
     return min(penalized_distances) if penalized_distances else 0
 
