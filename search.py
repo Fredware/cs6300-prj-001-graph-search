@@ -87,16 +87,103 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    # Initialize the explored set to be empty
+    explored_set = set()
+    # Initialize the frontier as a Stack
+    frontier = util.Stack()
+    # Add initial state to frontier
+    start_node = {"state": problem.getStartState(), "parent": None, "action": None}
+    frontier.push(start_node)
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        if problem.isGoalState(node["state"]):
+            action_list = []
+            while node["parent"] is not None:
+                action_list.append(node["action"])
+                node = node["parent"]
+            action_list.reverse()
+            return action_list
+        explored_set.add(node["state"])
+        successors = problem.getSuccessors(node["state"])
+        for child in successors:
+            child_node = {"state": child[0], "parent": node, "action": child[1]}
+            if child_node["state"] not in explored_set:
+                frontier.push(child_node)
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    # Initialize the explored set to be empty
+    explored_set = set()
+    frontier_set = set()
+    # Initialize the frontier as a Stack
+    frontier = util.Queue()
+    # Add initial state to frontier
+    start_node = {"state": problem.getStartState(), "parent": None, "action": None}
+    frontier.push(start_node)
+    frontier_set.add(start_node["state"])
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        frontier_set.remove(node["state"])
+        if problem.isGoalState(node["state"]):
+            action_list = []
+            while node["parent"] is not None:
+                action_list.append(node["action"])
+                node = node["parent"]
+            action_list.reverse()
+            return action_list
+        explored_set.add(node["state"])
+        successors = problem.getSuccessors(node["state"])
+        for child in successors:
+            child_node = {"state": child[0], "parent": node, "action": child[1]}
+            if not (child_node["state"] in explored_set or child_node["state"] in frontier_set):
+                frontier.push(child_node)
+                frontier_set.add(child_node["state"])
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    # Initialize the explored set to be empty
+    explored_set = set()
+    frontier_set = set()
+    # Initialize the frontier as a Stack
+    frontier = util.PriorityQueue()
+    # Add initial state to frontier
+    start_node = {"state": problem.getStartState(), "parent": None, "action": None, "cost": 0}
+    frontier.push(start_node, start_node["cost"])
+    frontier_set.add(start_node["state"])
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        frontier_set.remove(node["state"])
+        if problem.isGoalState(node["state"]):
+            action_list = []
+            while node["parent"] is not None:
+                action_list.append(node["action"])
+                node = node["parent"]
+            action_list.reverse()
+            return action_list
+        explored_set.add(node["state"])
+        successors = problem.getSuccessors(node["state"])
+        for child in successors:
+            child_node = {"state": child[0], "parent": node, "action": child[1], "cost": child[2] + node["cost"]}
+            if not (child_node["state"] in explored_set or child_node["state"] in frontier_set):
+                frontier.push(child_node, child_node["cost"])
+                frontier_set.add(child_node["state"])
+            elif child_node["state"] in frontier_set:
+                frontier_temp = util.PriorityQueue()
+                while not frontier.isEmpty():
+                    search_node = frontier.pop()
+                    if search_node["state"] == child_node["state"]:
+                        if search_node["cost"] > child_node["cost"]:
+                            search_node = child_node
+                    frontier_temp.push(search_node, search_node["cost"])
+                frontier = frontier_temp
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -109,6 +196,41 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    # Initialize the explored set to be empty
+    explored_set = set()
+    frontier_set = set()
+    # Initialize the frontier as a Stack
+    frontier = util.PriorityQueue()
+    # Add initial state to frontier
+    start_node = {"state": problem.getStartState(), "parent": None, "action": None, "cost": 0, "heur": heuristic(problem.getStartState(), problem)}
+    frontier.push(start_node, start_node["cost"])
+    frontier_set.add(start_node["state"])
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        frontier_set.remove(node["state"])
+        if problem.isGoalState(node["state"]):
+            action_list = []
+            while node["parent"] is not None:
+                action_list.append(node["action"])
+                node = node["parent"]
+            action_list.reverse()
+            return action_list
+        explored_set.add(node["state"])
+        successors = problem.getSuccessors(node["state"])
+        for child in successors:
+            child_node = {"state": child[0], "parent": node, "action": child[1], "cost": child[2] + node["cost"], "heur": heuristic(child[0], problem)}
+            if not (child_node["state"] in explored_set or child_node["state"] in frontier_set):
+                frontier.push(child_node, child_node["cost"] + child_node["heur"])
+                frontier_set.add(child_node["state"])
+            elif child_node["state"] in frontier_set:
+                frontier_temp = util.PriorityQueue()
+                while not frontier.isEmpty():
+                    search_node = frontier.pop()
+                    if search_node["state"] == child_node["state"]:
+                        if (search_node["cost"] + search_node["heur"]) > (child_node["cost"] + child_node["heur"]):
+                            search_node = child_node
+                    frontier_temp.push(search_node, search_node["cost"] + search_node["heur"])
+                frontier = frontier_temp
     util.raiseNotDefined()
 
 
