@@ -7,3 +7,5 @@ This project contains implementations of the following algorithnms for a Pacman 
 5. Greedy Search
 
 The implementations are located in `search.py` and `searchAgents.py` and are tested by `autograder.py`
+
+Currently the heuristics for the CornersProblem and the FoodProblem are consistent and pass the tests, but they could be improved by adding wall checks and expanding a couple of successor nodes.
